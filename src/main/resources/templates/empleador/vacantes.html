@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Mis Vacantes</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3a0ca3;
+      --success-color: #2ec4b6;
+      --warning-color: #ff9e00;
+      --info-color: #4cc9f0;
+      --danger-color: #e63946;
+      --dark-color: #2d3748;
+      --light-color: #f8f9fa;
+    }
+
+    body {
+      background-color: #f5f7fb;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .navbar {
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    }
+
+    .sidebar {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    .sidebar .list-group-item {
+      border: none;
+      border-left: 4px solid transparent;
+      padding: 1rem 1.25rem;
+      transition: all 0.3s;
+    }
+
+    .sidebar .list-group-item:hover {
+      background-color: rgba(67, 97, 238, 0.05);
+      border-left-color: var(--primary-color);
+    }
+
+    .sidebar .list-group-item.active {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border-left-color: var(--primary-color);
+      border: none;
+    }
+
+    .page-header {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem 2rem;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      margin-bottom: 2rem;
+    }
+
+    .vacante-card {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s;
+      margin-bottom: 1.5rem;
+      overflow: hidden;
+    }
+
+    .vacante-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+    }
+
+    .vacante-card .card-body {
+      padding: 1.5rem;
+    }
+
+    .vacante-header {
+      border-bottom: 1px solid #e9ecef;
+      padding-bottom: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .vacante-title {
+      color: var(--dark-color);
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .vacante-subtitle {
+      color: #6c757d;
+      font-size: 0.95rem;
+    }
+
+    .vacante-description {
+      color: #495057;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    .vacante-details {
+      background: rgba(67, 97, 238, 0.05);
+      border-radius: 8px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .badge-estado {
+      font-size: 0.8rem;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+    }
+
+    .btn-action {
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      font-weight: 500;
+      transition: all 0.3s;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-2px);
+    }
+
+    .alert-empty {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .alert-cubierta {
+      border-radius: 8px;
+      border: none;
+      background: rgba(76, 201, 240, 0.1);
+      border-left: 4px solid var(--info-color);
+    }
+
+    .salario {
+      font-weight: 600;
+      color: var(--success-color);
+    }
+
+    .btn-new-vacante {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border: none;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-new-vacante:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+    }
+
+    .vencida-badge {
+      background: #dc3545;
+      color: white;
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      margin-left: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#">
+      <i class="fas fa-briefcase me-2"></i>Gestión de Vacantes
+    </a>
+    <div class="navbar-nav ms-auto">
+      <a class="btn btn-outline-light btn-sm" th:href="@{/auth/logout}">
+        <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+      <div class="sidebar sticky-top">
+        <div class="list-group">
+          <a th:href="@{/empleador/dashboard}" class="list-group-item list-group-item-action">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+          </a>
+          <a th:href="@{/empleador/vacantes}" class="list-group-item list-group-item-action active">
+            <i class="fas fa-list me-2"></i>Mis Vacantes
+          </a>
+          <a th:href="@{/empleador/vacantes/nueva}" class="list-group-item list-group-item-action">
+            <i class="fas fa-plus-circle me-2"></i>Nueva Vacante
+          </a>
+          <a th:href="@{/empleador/solicitudes}" class="list-group-item list-group-item-action">
+            <i class="fas fa-file-alt me-2"></i>Solicitudes Recibidas
+          </a>
+          <a th:href="@{/perfil/editar}" class="list-group-item list-group-item-action">
+            <i class="fas fa-user-edit me-2"></i>Editar Perfil
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+      <!-- Page Header -->
+      <div class="page-header d-flex justify-content-between align-items-center">
+        <div>
+          <h2 class="mb-1 fw-bold">Mis Vacantes Publicadas</h2>
+          <p class="text-muted mb-0">Gestiona todas tus oportunidades laborales</p>
+        </div>
+        <a th:href="@{/empleador/vacantes/nueva}" class="btn btn-new-vacante text-white">
+          <i class="fas fa-plus me-2"></i>Nueva Vacante
+        </a>
+      </div>
+
+      <!-- Alert Messages -->
+      <div th:if="${success}" class="alert alert-success alert-dismissible fade show" role="alert">
+        <i class="fas fa-check-circle me-2"></i>
+        <span th:text="${success}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+
+      <div th:if="${error}" class="alert alert-danger alert-dismissible fade show" role="alert">
+        <i class="fas fa-exclamation-circle me-2"></i>
+        <span th:text="${error}"></span>
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+      </div>
+
+      <!-- Empty State -->
+      <div th:if="${vacantes != null and vacantes.empty}">
+        <div class="alert alert-empty alert-info">
+          <div class="mb-3">
+            <i class="fas fa-inbox fa-3x text-primary opacity-50"></i>
+          </div>
+          <h4 class="text-primary mb-2">No hay vacantes publicadas</h4>
+          <p class="text-muted mb-3">Comienza creando tu primera vacante para atraer talento a tu empresa.</p>
+          <a th:href="@{/empleador/vacantes/nueva}" class="btn btn-primary">
+            <i class="fas fa-plus me-2"></i>Crear Primera Vacante
+          </a>
+        </div>
+      </div>
+
+      <!-- Vacantes List -->
+      <div th:each="vacante : ${vacantes}" class="vacante-card">
+        <div class="card-body">
+          <!-- Header -->
+          <div class="vacante-header">
+            <div class="d-flex justify-content-between align-items-start">
+              <div class="flex-grow-1">
+                <h4 class="vacante-title" th:text="${vacante.titulo}">Título de la vacante</h4>
+                <div class="vacante-subtitle">
+                  <i class="fas fa-map-marker-alt me-1"></i>
+                  <span th:text="${vacante.ubicacion}">Ubicación</span> -
+                  <i class="fas fa-briefcase me-1 ms-2"></i>
+                  <span th:text="${vacante.tipoTrabajo}">Tipo</span>
+                  <span th:if="${vacante.vencida}" class="vencida-badge">VENCIDA</span>
+                </div>
+              </div>
+              <div class="text-end">
+                <span th:if="${vacante.estado.name() == 'PUBLICADA'}"
+                      class="badge-estado bg-success" th:text="${vacante.estado}"></span>
+                <span th:if="${vacante.estado.name() == 'BORRADOR'}"
+                      class="badge-estado bg-secondary" th:text="${vacante.estado}"></span>
+                <span th:if="${vacante.estado.name() == 'CERRADA'}"
+                      class="badge-estado bg-warning" th:text="${vacante.estado}"></span>
+                <span th:if="${vacante.estado.name() == 'CUBIERTA'}"
+                      class="badge-estado bg-info" th:text="${vacante.estado}">CUBIERTA</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Description -->
+          <p class="vacante-description" th:text="${vacante.descripcion}">Descripción de la vacante...</p>
+
+          <!-- Details -->
+          <div class="vacante-details">
+            <div class="row">
+              <div class="col-md-6 mb-2">
+                <strong><i class="fas fa-dollar-sign me-1 text-success"></i>Salario:</strong>
+                <span class="salario ms-1">$<span th:text="${vacante.salario}">0</span></span>
+              </div>
+              <div class="col-md-6 mb-2">
+                <strong><i class="fas fa-tag me-1 text-primary"></i>Estado:</strong>
+                <span th:if="${vacante.estado.name() == 'PUBLICADA'}"
+                      class="badge bg-success ms-1" th:text="${vacante.estado}"></span>
+                <span th:if="${vacante.estado.name() == 'BORRADOR'}"
+                      class="badge bg-secondary ms-1" th:text="${vacante.estado}"></span>
+                <span th:if="${vacante.estado.name() == 'CERRADA'}"
+                      class="badge bg-warning ms-1" th:text="${vacante.estado}"></span>
+                <span th:if="${vacante.estado.name() == 'CUBIERTA'}"
+                      class="badge bg-info ms-1" th:text="${vacante.estado}">CUBIERTA</span>
+              </div>
+              <div class="col-12" th:if="${vacante.fechaVencimiento}">
+                <strong><i class="fas fa-calendar-times me-1 text-warning"></i>Vence:</strong>
+                <span class="ms-1" th:text="${#temporals.format(vacante.fechaVencimiento, 'dd/MM/yyyy HH:mm')}">Fecha</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="mt-3">
+            <div class="d-flex flex-wrap gap-2">
+              <!-- Ver Solicitudes -->
+              <a th:if="${vacante.estado.name() != 'CUBIERTA'}"
+                 th:href="@{'/empleador/solicitudes/' + ${vacante.id}}"
+                 class="btn btn-action btn-info text-white">
+                <i class="fas fa-eye me-1"></i>Ver Solicitudes
+              </a>
+
+              <!-- Editar Vacante -->
+              <a th:href="@{'/empleador/vacantes/editar/' + ${vacante.id}}"
+                 class="btn btn-action btn-warning text-white">
+                <i class="fas fa-edit me-1"></i>Editar
+              </a>
+
+              <!-- Eliminar Vacante -->
+              <form th:action="@{'/empleador/vacantes/eliminar/' + ${vacante.id}}"
+                    method="post"
+                    class="d-inline"
+                    th:onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta vacante?')">
+                <button type="submit" class="btn btn-action btn-danger">
+                  <i class="fas fa-trash me-1"></i>Eliminar
+                </button>
+              </form>
+            </div>
+
+            <!-- Mensaje para vacantes vencidas -->
+            <div th:if="${vacante.vencida}" class="mt-3">
+              <div class="alert alert-warning p-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-exclamation-triangle text-warning me-2"></i>
+                  <small class="mb-0">
+                    <strong>⚠️ Esta vacante ha vencido.</strong> No acepta más solicitudes.
+                  </small>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mensaje para vacantes cubiertas -->
+            <div th:if="${vacante.estado.name() == 'CUBIERTA'}" class="mt-3">
+              <div class="alert-cubierta p-3">
+                <div class="d-flex align-items-center">
+                  <i class="fas fa-check-circle text-info me-2"></i>
+                  <small class="mb-0">
+                    <strong>✅ Esta vacante ha sido cubierta.</strong> No acepta más solicitudes.
+                  </small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Solicitudes Recibidas</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+          --primary-color: #4361ee;
+          --secondary-color: #3a0ca3;
+          --success-color: #2ec4b6;
+          --warning-color: #ff9e00;
+          --info-color: #4cc9f0;
+          --danger-color: #e63946;
+          --dark-color: #2d3748;
+          --light-color: #f8f9fa;
+        }
+        body { background-color: #f5f7fb; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .navbar { box-shadow: 0 2px 10px rgba(0,0,0,0.1); background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important; }
+        .sidebar { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; }
+        .sidebar .list-group-item { border: none; border-left: 4px solid transparent; padding: 1rem 1.25rem; transition: all 0.3s; }
+        .sidebar .list-group-item:hover { background-color: rgba(67, 97, 238, 0.05); border-left-color: var(--primary-color); }
+        .sidebar .list-group-item.active { background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); border-left-color: var(--primary-color); border: none; }
+        .page-header { background: white; border-radius: 12px; padding: 1.5rem 2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 2rem; }
+        .solicitud-card { border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.08); transition: all 0.3s; margin-bottom: 1.5rem; overflow: hidden; }
+        .solicitud-card:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(0,0,0,0.12); }
+        .solicitud-card .card-body { padding: 1.5rem; }
+        .solicitud-header { border-bottom: 1px solid #e9ecef; padding-bottom: 1rem; margin-bottom: 1rem; }
+        .aspirante-info { flex-grow: 1; }
+        .aspirante-name { color: var(--dark-color); font-weight: 700; margin-bottom: 0.25rem; }
+        .aspirante-email { color: #6c757d; font-size: 0.95rem; }
+        .vacante-info { background: rgba(67, 97, 238, 0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+        .badge-estado { font-size: 0.8rem; padding: 0.5rem 0.75rem; border-radius: 6px; }
+        .btn-action { border-radius: 8px; padding: 0.5rem 1rem; font-weight: 500; transition: all 0.3s; border: none; }
+        .btn-action:hover { transform: translateY(-2px); }
+        .btn-outline-custom { border: 2px solid var(--primary-color); color: var(--primary-color); background: transparent; }
+        .btn-outline-custom:hover { background: var(--primary-color); color: white; }
+        .btn-danger-custom { background: linear-gradient(135deg, var(--danger-color), #c1121f); border: none; color: white; }
+        .btn-danger-custom:hover { background: linear-gradient(135deg, #c1121f, var(--danger-color)); color: white; }
+        .form-select-sm-custom, .form-control-sm-custom { border-radius: 6px; border: 2px solid #e1e5ee; padding: 0.375rem 0.75rem; }
+        .nota-container { background: rgba(76, 201, 240, 0.1); border-radius: 8px; padding: 1rem; border-left: 4px solid var(--info-color); margin-top: 1rem; }
+        .alert-empty { border-radius: 12px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); padding: 3rem 2rem; text-align: center; }
+        .stats-badge { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 0.25rem 0.75rem; font-size: 0.8rem; margin-left: 0.5rem; }
+        .action-header { background: rgba(230, 57, 70, 0.05); border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; border-left: 4px solid var(--danger-color); }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#"><i class="fas fa-briefcase me-2"></i>Gestión de Vacantes</a>
+        <div class="navbar-nav ms-auto">
+            <a class="btn btn-outline-light btn-sm" th:href="@{/auth/logout}">
+                <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="sidebar sticky-top">
+                <div class="list-group">
+                    <a th:href="@{/empleador/dashboard}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a th:href="@{/empleador/vacantes}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-list me-2"></i>Mis Vacantes
+                    </a>
+                    <a th:href="@{/empleador/vacantes/nueva}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-plus-circle me-2"></i>Nueva Vacante
+                    </a>
+                    <a th:href="@{/empleador/solicitudes}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-file-alt me-2"></i>Solicitudes Recibidas
+                        <span th:if="${solicitudes != null and solicitudes.size() > 0}"
+                              class="stats-badge" th:text="${solicitudes.size()}"></span>
+                    </a>
+                    <a th:href="@{/perfil/editar}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-edit me-2"></i>Editar Perfil
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Page Header -->
+            <div class="page-header d-flex justify-content-between align-items-center">
+                <div>
+                    <h2 class="mb-1 fw-bold">Todas las Solicitudes Recibidas</h2>
+                    <p class="text-muted mb-0">Gestiona todas las solicitudes recibidas en tus vacantes</p>
+                </div>
+                <div class="d-flex gap-2">
+                    <!-- Botón para rechazar todas las solicitudes pendientes -->
+                    <form th:action="@{/empleador/solicitudes/rechazar-todas}" method="post"
+                          th:if="${totalSolicitudesPendientes != null and totalSolicitudesPendientes > 0}">
+                        <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}">
+                        <button type="button" class="btn btn-danger-custom btn-action" onclick="confirmarRechazarTodas()">
+                            <i class="fas fa-times-circle me-1"></i>
+                            Rechazar <span th:text="${totalSolicitudesPendientes}"></span> Pendientes
+                        </button>
+                    </form>
+                    <a th:href="@{/empleador/dashboard}" class="btn btn-outline-custom">
+                        <i class="fas fa-arrow-left me-2"></i>Volver al Dashboard
+                    </a>
+                </div>
+            </div>
+
+            <!-- Información de solicitudes pendientes -->
+            <div th:if="${totalSolicitudesPendientes != null and totalSolicitudesPendientes > 0}" class="action-header">
+                <div class="d-flex align-items-center">
+                    <i class="fas fa-exclamation-triangle text-warning me-2 fs-5"></i>
+                    <div>
+                        <strong class="text-dark">Tienes <span th:text="${totalSolicitudesPendientes}"></span> solicitudes pendientes</strong>
+                        <p class="mb-0 text-muted">Puedes rechazar todas las solicitudes pendientes de una vez usando el botón rojo.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${solicitudes == null or solicitudes.empty}">
+                <div class="alert-empty alert-info">
+                    <div class="mb-3">
+                        <i class="fas fa-inbox fa-3x text-primary opacity-50"></i>
+                    </div>
+                    <h4 class="text-primary mb-2">No hay solicitudes recibidas</h4>
+                    <p class="text-muted mb-3">Las solicitudes aparecerán aquí cuando los aspirantes apliquen a tus vacantes.</p>
+                </div>
+            </div>
+
+            <!-- Solicitudes List -->
+            <div th:each="solicitud : ${solicitudes}" class="solicitud-card">
+                <div class="card-body">
+                    <!-- Header -->
+                    <div class="solicitud-header">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="aspirante-info">
+                                <h4 class="aspirante-name" th:text="${solicitud.aspirante.nombre}">Nombre Aspirante</h4>
+                                <div class="aspirante-email">
+                                    <i class="fas fa-envelope me-1"></i>
+                                    <span th:text="${solicitud.aspirante.correo}">correo@ejemplo.com</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span th:if="${solicitud.estado.name() == 'PENDIENTE'}"  class="badge-estado bg-warning" th:text="${solicitud.estado}"></span>
+                                <span th:if="${solicitud.estado.name() == 'ACEPTADA'}"  class="badge-estado bg-success" th:text="${solicitud.estado}"></span>
+                                <span th:if="${solicitud.estado.name() == 'RECHAZADA'}" class="badge-estado bg-danger"  th:text="${solicitud.estado}"></span>
+                                <span th:if="${solicitud.estado.name() == 'REVISADA'}"   class="badge-estado bg-info"    th:text="${solicitud.estado}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vacante Info -->
+                    <div class="vacante-info">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <strong><i class="fas fa-briefcase me-2 text-primary"></i>Vacante:</strong>
+                                <span class="ms-1" th:text="${solicitud.vacante.titulo}">Título vacante</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong><i class="fas fa-clock me-2 text-primary"></i>Fecha de solicitud:</strong>
+                                <span class="ms-1" th:text="${#temporals.format(solicitud.fechaSolicitud, 'dd/MM/yyyy HH:mm')}">fecha</span>
+                            </div>
+                            <div class="col-12" th:if="${solicitud.aspirante.habilidades}">
+                                <strong><i class="fas fa-star me-2 text-primary"></i>Habilidades:</strong>
+                                <span class="ms-1" th:text="${solicitud.aspirante.habilidades}">Habilidades del aspirante</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="mt-3">
+                        <div class="d-flex flex-wrap gap-2 align-items-center">
+                            <!-- Ver CV -->
+                            <a th:if="${solicitud.cvAdjunto}"
+                               th:href="@{'/empleador/download/cv/' + ${solicitud.cvAdjunto}}"
+                               class="btn btn-action btn-outline-primary" target="_blank">
+                                <i class="fas fa-file-pdf me-1"></i>Ver CV
+                            </a>
+
+                            <!-- Ver Detalles -->
+                            <a th:href="@{'/empleador/solicitudes/detalle/' + ${solicitud.id}}"
+                               class="btn btn-action btn-info text-white">
+                                <i class="fas fa-search me-1"></i>Ver Detalles
+                            </a>
+
+                            <!-- ✅ ACEPTAR / RECHAZAR (sólo cuando está PENDIENTE) -->
+                            <div th:if="${solicitud.estado.name() == 'PENDIENTE'}" class="ms-auto d-flex gap-2">
+                                <!-- Aceptar -->
+                                <form th:action="@{|/empleador/solicitudes/${solicitud.id}/aceptar|}" method="post">
+                                    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}">
+                                    <button type="submit" class="btn btn-success btn-action">
+                                        <i class="fas fa-check me-1"></i> Aceptar
+                                    </button>
+                                </form>
+                                <!-- Rechazar -->
+                                <form th:action="@{|/empleador/solicitudes/${solicitud.id}/rechazar|}" method="post">
+                                    <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}">
+                                    <button type="submit" class="btn btn-danger-custom btn-action">
+                                        <i class="fas fa-times me-1"></i> Rechazar
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Form de Actualizar estado + nota -->
+                            <form th:action="@{'/empleador/solicitudes/' + ${solicitud.id} + '/estado'}"
+                                  method="post" class="d-flex flex-wrap gap-2 align-items-center ms-auto">
+                                <input type="hidden" th:name="${_csrf?.parameterName}" th:value="${_csrf?.token}">
+                                <select name="estado" class="form-select-sm-custom">
+                                    <option th:each="estado : ${T(com.said_jesus.Gestion_vacantes.models.EstadoSolicitud).values()}"
+                                            th:value="${estado}"
+                                            th:text="${estado}"
+                                            th:selected="${solicitud.estado == estado}">
+                                    </option>
+                                </select>
+                                <input type="text" name="nota" class="form-control-sm-custom"
+                                       placeholder="Agregar nota..." th:value="${solicitud.notaReclutador}"
+                                       style="min-width: 200px;">
+                                <button type="submit" class="btn btn-action btn-primary">
+                                    <i class="fas fa-save me-1"></i>Actualizar
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <!-- Nota Existente -->
+                    <div th:if="${solicitud.notaReclutador}" class="nota-container">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-sticky-note text-info me-2 mt-1"></i>
+                            <div>
+                                <strong class="text-info">Nota:</strong>
+                                <p class="mb-0 mt-1" th:text="${solicitud.notaReclutador}"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!-- /each solicitud -->
+        </div>
+    </div>
+</div>
+
+<script>
+    function confirmarRechazarTodas() {
+      const btn = document.querySelector('.btn-danger-custom span');
+      const pendientes = btn ? btn.textContent : 'todas las';
+      if (confirm('¿Estás seguro de que deseas rechazar TODAS las ' + pendientes + ' solicitudes pendientes? Esta acción no se puede deshacer.')) {
+        const form = document.querySelector('form[action$="rechazar-todas"]');
+        if (form) form.submit();
+      }
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

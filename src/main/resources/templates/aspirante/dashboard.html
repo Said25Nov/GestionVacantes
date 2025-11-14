@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Dashboard Aspirante</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary-color: #4361ee;
+      --secondary-color: #3a0ca3;
+      --success-color: #2ec4b6;
+      --info-color: #4cc9f0;
+      --warning-color: #ff9e00;
+      --dark-color: #2d3748;
+      --light-color: #f8f9fa;
+    }
+
+    body {
+      background-color: #f5f7fb;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    .navbar {
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+    }
+
+    .sidebar {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    .sidebar .list-group-item {
+      border: none;
+      border-left: 4px solid transparent;
+      padding: 1rem 1.25rem;
+      transition: all 0.3s;
+    }
+
+    .sidebar .list-group-item:hover {
+      background-color: rgba(67, 97, 238, 0.05);
+      border-left-color: var(--primary-color);
+    }
+
+    .sidebar .list-group-item.active {
+      background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+      border-left-color: var(--primary-color);
+      border: none;
+    }
+
+    .dashboard-header {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .welcome-section {
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .welcome-icon {
+      font-size: 4rem;
+      color: var(--primary-color);
+      margin-bottom: 1rem;
+      opacity: 0.8;
+    }
+
+    .action-card {
+      border-radius: 12px;
+      border: none;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+      transition: all 0.3s;
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .action-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+    }
+
+    .action-card .card-body {
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .action-card.bg-success {
+      background: linear-gradient(135deg, var(--success-color), #34d1bf) !important;
+    }
+
+    .action-card.bg-info {
+      background: linear-gradient(135deg, var(--info-color), #6bd4f5) !important;
+    }
+
+    .action-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.9;
+    }
+
+    .btn-light-custom {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      border-radius: 8px;
+      padding: 0.75rem 1.5rem;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .btn-light-custom:hover {
+      background: rgba(255,255,255,0.3);
+      color: white;
+      transform: translateY(-2px);
+    }
+
+    .stats-section {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .stat-item {
+      text-align: center;
+      padding: 1rem;
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary-color);
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .quick-actions {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      padding: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .quick-action-item {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border-radius: 8px;
+      transition: all 0.3s;
+      cursor: pointer;
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .quick-action-item:hover {
+      background: rgba(67, 97, 238, 0.05);
+      transform: translateX(5px);
+      text-decoration: none;
+      color: inherit;
+    }
+
+    .quick-action-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 1rem;
+      font-size: 1.2rem;
+    }
+
+    .quick-action-icon.primary {
+      background: rgba(67, 97, 238, 0.1);
+      color: var(--primary-color);
+    }
+
+    .quick-action-icon.success {
+      background: rgba(46, 196, 182, 0.1);
+      color: var(--success-color);
+    }
+
+    .quick-action-icon.info {
+      background: rgba(76, 201, 240, 0.1);
+      color: var(--info-color);
+    }
+  </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="#">
+      <i class="fas fa-briefcase me-2"></i>Gestión de Vacantes
+    </a>
+    <div class="navbar-nav ms-auto">
+      <span class="navbar-text me-3">
+        <i class="fas fa-user me-1"></i>Hola,
+        <span th:if="${aspirante != null}">Aspirante: </span>
+        <span th:text="${aspirante.nombre}" class="fw-semibold">Usuario</span>
+      </span>
+      <a class="btn btn-outline-light btn-sm" th:href="@{/auth/logout}">
+        <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+      </a>
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-4">
+  <div class="row">
+    <!-- Sidebar -->
+    <div class="col-md-3">
+      <div class="sidebar sticky-top">
+        <div class="list-group">
+          <a th:href="@{/aspirante/dashboard}" class="list-group-item list-group-item-action active">
+            <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+          </a>
+          <a th:href="@{/aspirante/vacantes}" class="list-group-item list-group-item-action">
+            <i class="fas fa-search me-2"></i>Buscar Vacantes
+          </a>
+          <a th:href="@{/aspirante/mis-solicitudes}" class="list-group-item list-group-item-action">
+            <i class="fas fa-file-alt me-2"></i>Mis Solicitudes
+          </a>
+          <a th:href="@{/perfil/editar}" class="list-group-item list-group-item-action">
+            <i class="fas fa-user-edit me-2"></i>Editar Perfil
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="col-md-9">
+      <!-- Welcome Section -->
+      <div class="dashboard-header">
+        <div class="welcome-section">
+          <div class="welcome-icon">
+            <i class="fas fa-rocket"></i>
+          </div>
+          <h1 class="fw-bold text-dark mb-2">
+            <span th:if="${aspirante != null}">¡Bienvenido Aspirante, </span>
+            <span th:text="${aspirante.nombre}">Aspirante</span>!
+          </h1>
+          <p class="text-muted mb-4">Tu próximo gran oportunidad laboral te está esperando</p>
+        </div>
+      </div>
+
+      <!-- Main Actions -->
+      <div class="row">
+        <div class="col-md-6 mb-4">
+          <div class="action-card text-white bg-success">
+            <div class="card-body">
+              <div class="action-icon">
+                <i class="fas fa-search"></i>
+              </div>
+              <h4 class="card-title mb-3">Buscar Vacantes</h4>
+              <p class="card-text mb-4">Descubre oportunidades que se ajusten a tu perfil profesional y experiencia.</p>
+              <a th:href="@{/aspirante/vacantes}" class="btn btn-light-custom">
+                <i class="fas fa-search me-2"></i>Explorar Vacantes
+              </a>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-6 mb-4">
+          <div class="action-card text-white bg-info">
+            <div class="card-body">
+              <div class="action-icon">
+                <i class="fas fa-tasks"></i>
+              </div>
+              <h4 class="card-title mb-3">Mis Solicitudes</h4>
+              <p class="card-text mb-4">Revisa el estado de tus aplicaciones y el progreso de tus postulaciones.</p>
+              <a th:href="@{/aspirante/mis-solicitudes}" class="btn btn-light-custom">
+                <i class="fas fa-list me-2"></i>Ver Solicitudes
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions">
+        <h5 class="fw-bold mb-3 text-dark">
+          <i class="fas fa-bolt me-2 text-warning"></i>Acciones Rápidas
+        </h5>
+        <a th:href="@{/aspirante/vacantes}" class="quick-action-item">
+          <div class="quick-action-icon primary">
+            <i class="fas fa-search"></i>
+          </div>
+          <div>
+            <h6 class="mb-1 fw-semibold">Buscar Nuevas Vacantes</h6>
+            <p class="text-muted mb-0">Explora las últimas oportunidades disponibles</p>
+          </div>
+        </a>
+        <a th:href="@{/aspirante/mis-solicitudes}" class="quick-action-item">
+          <div class="quick-action-icon success">
+            <i class="fas fa-eye"></i>
+          </div>
+          <div>
+            <h6 class="mb-1 fw-semibold">Revisar Mis Postulaciones</h6>
+            <p class="text-muted mb-0">Consulta el estado de tus aplicaciones</p>
+          </div>
+        </a>
+        <a th:href="@{/perfil/editar}" class="quick-action-item">
+          <div class="quick-action-icon info">
+            <i class="fas fa-user-edit"></i>
+          </div>
+          <div>
+            <h6 class="mb-1 fw-semibold">Actualizar Mi Perfil</h6>
+            <p class="text-muted mb-0">Mantén tu información actualizada</p>
+          </div>
+        </a>
+      </div>
+
+      <!-- Stats Section -->
+      <div class="stats-section">
+        <h5 class="fw-bold mb-3 text-dark">
+          <i class="fas fa-chart-bar me-2 text-primary"></i>Mi Progreso
+        </h5>
+        <div class="row text-center">
+          <div class="col-md-4">
+            <div class="stat-item">
+              <div class="stat-number" th:text="${solicitudes != null ? solicitudes.size() : 0}">0</div>
+              <div class="stat-label">Solicitudes Activas</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-item">
+              <div class="stat-number" th:text="${vacantes != null ? vacantes.size() : 0}">0</div>
+              <div class="stat-label">Vacantes Disponibles</div>
+            </div>
+          </div>
+          <div class="col-md-4">
+            <div class="stat-item">
+              <div class="stat-number">0</div>
+              <div class="stat-label">Empresas Seguidas</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

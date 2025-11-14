@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Mis Solicitudes</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --success-color: #2ec4b6;
+            --warning-color: #ff9e00;
+            --info-color: #4cc9f0;
+            --danger-color: #e63946;
+            --dark-color: #2d3748;
+            --light-color: #f8f9fa;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .sidebar .list-group-item {
+            border: none;
+            border-left: 4px solid transparent;
+            padding: 1rem 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .sidebar .list-group-item:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar .list-group-item.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-left-color: var(--primary-color);
+            border: none;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .solicitud-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .solicitud-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .solicitud-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .solicitud-header {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .vacante-title {
+            color: var(--dark-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .empresa-name {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .solicitud-info {
+            background: rgba(67, 97, 238, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .badge-estado {
+            font-size: 0.8rem;
+            padding: 0.5rem 0.75rem;
+            border-radius: 6px;
+        }
+
+        .nota-container {
+            background: rgba(76, 201, 240, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid var(--info-color);
+            margin-top: 1rem;
+        }
+
+        .alert-empty {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .stats-badge {
+            background: rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 0.25rem 0.75rem;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .status-timeline {
+            display: flex;
+            align-items: center;
+            margin-top: 1rem;
+            padding: 1rem;
+            background: rgba(248, 249, 250, 0.8);
+            border-radius: 8px;
+        }
+
+        .status-step {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            position: relative;
+        }
+
+        .status-step:not(:last-child):after {
+            content: '';
+            position: absolute;
+            top: 20px;
+            right: -50%;
+            width: 100%;
+            height: 2px;
+            background: #e9ecef;
+            z-index: 1;
+        }
+
+        .status-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 0.5rem;
+            z-index: 2;
+            position: relative;
+        }
+
+        .status-icon.active {
+            background: var(--success-color);
+            color: white;
+        }
+
+        .status-icon.pending {
+            background: var(--warning-color);
+            color: white;
+        }
+
+        .status-icon.inactive {
+            background: #e9ecef;
+            color: #6c757d;
+        }
+
+        .status-label {
+            font-size: 0.8rem;
+            color: #6c757d;
+            text-align: center;
+        }
+
+        .btn-eliminar {
+            background: var(--danger-color);
+            border: none;
+            border-radius: 6px;
+            padding: 0.5rem 1rem;
+            color: white;
+            font-size: 0.8rem;
+            transition: all 0.3s;
+        }
+
+        .btn-eliminar:hover {
+            background: #c82333;
+            transform: translateY(-1px);
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">
+            <i class="fas fa-briefcase me-2"></i>Gestión de Vacantes
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="btn btn-outline-light btn-sm" th:href="@{/auth/logout}">
+                <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="sidebar sticky-top">
+                <div class="list-group">
+                    <a th:href="@{/aspirante/dashboard}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a th:href="@{/aspirante/vacantes}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-search me-2"></i>Buscar Vacantes
+                    </a>
+                    <a th:href="@{/aspirante/mis-solicitudes}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-file-alt me-2"></i>Mis Solicitudes
+                        <span th:if="${solicitudes != null and not solicitudes.empty}"
+                              class="stats-badge" th:text="${solicitudes.size()}"></span>
+                    </a>
+                    <a th:href="@{/perfil/editar}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-edit me-2"></i>Editar Perfil
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1 class="fw-bold text-dark mb-2">Mis Solicitudes</h1>
+                <p class="text-muted mb-0">Revisa el estado de todas tus postulaciones a vacantes</p>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${solicitudes.empty}">
+                <div class="alert-empty alert-info">
+                    <div class="mb-3">
+                        <i class="fas fa-inbox fa-3x text-primary opacity-50"></i>
+                    </div>
+                    <h4 class="text-primary mb-2">No hay solicitudes registradas</h4>
+                    <p class="text-muted mb-3">Comienza explorando las vacantes disponibles y aplica a las que se ajusten a tu perfil.</p>
+                    <a th:href="@{/aspirante/vacantes}" class="btn btn-primary">
+                        <i class="fas fa-search me-2"></i>Explorar Vacantes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Solicitudes List -->
+            <div th:each="solicitud : ${solicitudes}" class="solicitud-card">
+                <div class="card-body">
+                    <!-- Header -->
+                    <div class="solicitud-header">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h3 class="vacante-title" th:text="${solicitud.vacante.titulo}">Título de vacante</h3>
+                                <div class="empresa-name">
+                                    <i class="fas fa-building me-2"></i>
+                                    <span th:text="${solicitud.vacante.empleador.empresa}">Nombre de la empresa</span>
+                                </div>
+                            </div>
+                            <div class="text-end">
+                                <span th:if="${solicitud.estado.name() == 'PENDIENTE'}"
+                                      class="badge-estado bg-warning" th:text="${solicitud.estado}"></span>
+                                <span th:if="${solicitud.estado.name() == 'ACEPTADA'}"
+                                      class="badge-estado bg-success" th:text="${solicitud.estado}"></span>
+                                <span th:if="${solicitud.estado.name() == 'RECHAZADA'}"
+                                      class="badge-estado bg-danger" th:text="${solicitud.estado}"></span>
+                                <span th:if="${solicitud.estado.name() == 'REVISADA'}"
+                                      class="badge-estado bg-info" th:text="${solicitud.estado}"></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Información de la Solicitud -->
+                    <div class="solicitud-info">
+                        <div class="row">
+                            <div class="col-md-6 mb-2">
+                                <strong><i class="fas fa-calendar me-2 text-primary"></i>Fecha de solicitud:</strong>
+                                <span class="ms-1" th:text="${#temporals.format(solicitud.fechaSolicitud, 'dd/MM/yyyy HH:mm')}">fecha</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong><i class="fas fa-map-marker-alt me-2 text-primary"></i>Ubicación:</strong>
+                                <span class="ms-1" th:text="${solicitud.vacante.ubicacion}">Ubicación</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong><i class="fas fa-briefcase me-2 text-primary"></i>Tipo de trabajo:</strong>
+                                <span class="ms-1" th:text="${solicitud.vacante.tipoTrabajo}">Tipo</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong><i class="fas fa-dollar-sign me-2 text-primary"></i>Salario:</strong>
+                                <span class="ms-1">$<span th:text="${solicitud.vacante.salario}">0</span></span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Timeline de Estado -->
+                    <div class="status-timeline">
+                        <div class="status-step">
+                            <div class="status-icon active">
+                                <i class="fas fa-paper-plane"></i>
+                            </div>
+                            <span class="status-label">Enviada</span>
+                        </div>
+                        <div class="status-step">
+                            <div th:class="${solicitud.estado.name() != 'PENDIENTE' ? 'status-icon active' : 'status-icon pending'}">
+                                <i class="fas fa-eye"></i>
+                            </div>
+                            <span class="status-label">Revisada</span>
+                        </div>
+                        <div class="status-step">
+                            <div th:class="${solicitud.estado.name() == 'ACEPTADA' ? 'status-icon active' :
+                                           solicitud.estado.name() == 'RECHAZADA' ? 'status-icon active' :
+                                           'status-icon inactive'}">
+                                <i class="fas fa-check"></i>
+                            </div>
+                            <span class="status-label">Decidida</span>
+                        </div>
+                    </div>
+
+                    <!-- Nota del Reclutador -->
+                    <div th:if="${solicitud.notaReclutador}" class="nota-container">
+                        <div class="d-flex align-items-start">
+                            <i class="fas fa-comment-alt text-info me-2 mt-1"></i>
+                            <div>
+                                <strong class="text-info">Nota del reclutador:</strong>
+                                <p class="mb-0 mt-1" th:text="${solicitud.notaReclutador}"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Botón Eliminar -->
+                    <div class="mt-3 text-end">
+                        <form th:action="@{'/aspirante/solicitudes/eliminar/' + ${solicitud.id}}" method="post"
+                              th:onsubmit="return confirm('¿Estás seguro de que quieres eliminar esta solicitud?')">
+                            <button type="submit" class="btn-eliminar">
+                                <i class="fas fa-trash me-1"></i>Eliminar Solicitud
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

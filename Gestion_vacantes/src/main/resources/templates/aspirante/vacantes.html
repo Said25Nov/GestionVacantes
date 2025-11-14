@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Vacantes Disponibles</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --success-color: #2ec4b6;
+            --warning-color: #ff9e00;
+            --info-color: #4cc9f0;
+            --dark-color: #2d3748;
+            --light-color: #f8f9fa;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .sidebar .list-group-item {
+            border: none;
+            border-left: 4px solid transparent;
+            padding: 1rem 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .sidebar .list-group-item:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar .list-group-item.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-left-color: var(--primary-color);
+            border: none;
+        }
+
+        .filters-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            border: none;
+            margin-top: 1.5rem;
+        }
+
+        .filters-card .card-header {
+            background: white;
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .page-header {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .vacante-card {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            transition: all 0.3s;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+
+        .vacante-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        .vacante-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .vacante-header {
+            border-bottom: 1px solid #e9ecef;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .vacante-title {
+            color: var(--dark-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .vacante-subtitle {
+            color: #6c757d;
+            font-size: 0.95rem;
+        }
+
+        .vacante-description {
+            color: #495057;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+
+        .requisitos-container {
+            background: rgba(46, 196, 182, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            border-left: 4px solid var(--success-color);
+            margin-bottom: 1rem;
+        }
+
+        .requisitos-title {
+            font-weight: 600;
+            color: var(--success-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .requisitos-content {
+            color: #495057;
+            line-height: 1.6;
+            white-space: pre-line;
+        }
+
+        .vacante-details {
+            background: rgba(67, 97, 238, 0.05);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .salario {
+            font-weight: 600;
+            color: var(--success-color);
+        }
+
+        .btn-apply {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-apply:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+        }
+
+        .alert-empty {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 3rem 2rem;
+            text-align: center;
+        }
+
+        .form-control-custom {
+            border: 2px solid #e1e5ee;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control-custom:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
+        }
+
+        .btn-filter {
+            background: var(--primary-color);
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-filter:hover {
+            background: var(--secondary-color);
+            transform: translateY(-1px);
+        }
+
+        .modal-content {
+            border-radius: 12px;
+            border: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+
+        .modal-header {
+            border-bottom: 1px solid #e9ecef;
+            padding: 1.5rem;
+        }
+
+        .modal-body {
+            padding: 1.5rem;
+        }
+
+        .modal-footer {
+            border-top: 1px solid #e9ecef;
+            padding: 1.25rem 1.5rem;
+        }
+
+        .file-upload-container {
+            position: relative;
+        }
+
+        .file-upload {
+            border: 2px dashed #e1e5ee;
+            border-radius: 8px;
+            padding: 2rem;
+            text-align: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            background: #fafbfc;
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary-color);
+            background: rgba(67, 97, 238, 0.02);
+        }
+
+        .file-upload.dragover {
+            border-color: var(--success-color);
+            background: rgba(46, 196, 182, 0.05);
+        }
+
+        .file-upload-icon {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+
+        .file-input {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .file-name {
+            margin-top: 1rem;
+            padding: 0.75rem;
+            background: rgba(46, 196, 182, 0.1);
+            border-radius: 6px;
+            border-left: 4px solid var(--success-color);
+        }
+
+        .vencida-badge {
+            background: #dc3545;
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin-left: 0.5rem;
+        }
+
+        .info-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .info-title {
+            font-weight: 600;
+            color: var(--primary-color);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+
+        .info-title i {
+            margin-right: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">
+            <i class="fas fa-briefcase me-2"></i>Gestión de Vacantes
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="btn btn-outline-light btn-sm" th:href="@{/auth/logout}">
+                <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="sidebar sticky-top">
+                <div class="list-group">
+                    <a th:href="@{/aspirante/dashboard}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a th:href="@{/aspirante/vacantes}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-search me-2"></i>Buscar Vacantes
+                    </a>
+                    <a th:href="@{/aspirante/mis-solicitudes}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-alt me-2"></i>Mis Solicitudes
+                    </a>
+                    <a th:href="@{/perfil/editar}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-edit me-2"></i>Editar Perfil
+                    </a>
+                </div>
+            </div>
+
+            <!-- Filtros -->
+            <div class="filters-card">
+                <div class="card-header">
+                    <h5 class="mb-0">
+                        <i class="fas fa-filter me-2 text-primary"></i>Filtros de Búsqueda
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <form th:action="@{/aspirante/buscar}" method="post">
+                        <div class="mb-3">
+                            <label class="form-label fw-semibold">Ubicación</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light">
+                                    <i class="fas fa-map-marker-alt text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control-custom" name="ubicacion"
+                                       placeholder="Ej: Ciudad, Estado" th:value="${ubicacionBuscada}">
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-filter text-white w-100 mb-2">
+                            <i class="fas fa-search me-2"></i>Buscar Vacantes
+                        </button>
+                    </form>
+                    <a th:href="@{/aspirante/vacantes}" class="btn btn-outline-secondary w-100">
+                        <i class="fas fa-sync me-2"></i>Ver Todas
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <h1 class="fw-bold text-dark mb-2">Vacantes Disponibles</h1>
+                        <p class="text-muted mb-0" th:if="${vacantes != null}">
+                            <span th:text="${vacantes.size()}">0</span> oportunidades encontradas
+                        </p>
+                    </div>
+                    <div class="text-end">
+                        <small class="text-muted">Encuentra tu próximo empleo</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Empty State -->
+            <div th:if="${vacantes.empty}">
+                <div class="alert-empty alert-info">
+                    <div class="mb-3">
+                        <i class="fas fa-search fa-3x text-primary opacity-50"></i>
+                    </div>
+                    <h4 class="text-primary mb-2">No hay vacantes disponibles</h4>
+                    <p class="text-muted mb-3" th:if="${ubicacionBuscada != null}">
+                        No se encontraron vacantes en la ubicación: <strong th:text="${ubicacionBuscada}"></strong>
+                    </p>
+                    <p class="text-muted mb-3" th:if="${ubicacionBuscada == null}">
+                        No hay vacantes disponibles en este momento. Vuelve a revisar más tarde.
+                    </p>
+                    <a th:href="@{/aspirante/vacantes}" class="btn btn-primary">
+                        <i class="fas fa-sync me-2"></i>Ver Todas las Vacantes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Vacantes List -->
+            <div th:each="vacante : ${vacantes}" class="vacante-card">
+                <div class="card-body">
+                    <!-- Header -->
+                    <div class="vacante-header">
+                        <div class="d-flex justify-content-between align-items-start">
+                            <div class="flex-grow-1">
+                                <h3 class="vacante-title" th:text="${vacante.titulo}">Título de la vacante</h3>
+                                <div class="vacante-subtitle">
+                                    <i class="fas fa-building me-2"></i>
+                                    <span th:text="${vacante.empleador.empresa}">Empresa</span> -
+                                    <i class="fas fa-map-marker-alt me-2 ms-2"></i>
+                                    <span th:text="${vacante.ubicacion}">Ubicación</span>
+                                    <span th:if="${vacante.vencida}" class="vencida-badge">VENCIDA</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Descripción y Requisitos -->
+                    <div class="info-section">
+                        <!-- Descripción -->
+                        <div th:if="${vacante.descripcion}" class="mb-3">
+                            <h6 class="info-title">
+                                <i class="fas fa-file-alt"></i>Descripción del Puesto:
+                            </h6>
+                            <p class="vacante-description mb-0" th:text="${vacante.descripcion}">
+                                Descripción de la vacante...
+                            </p>
+                        </div>
+
+                        <!-- Requisitos -->
+                        <div th:if="${vacante.requisitos}">
+                            <h6 class="info-title">
+                                <i class="fas fa-list-check"></i>Requisitos:
+                            </h6>
+                            <div class="requisitos-container">
+                                <div class="requisitos-content" th:text="${vacante.requisitos}">
+                                    Requisitos de la vacante...
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Details -->
+                    <div class="vacante-details">
+                        <div class="row">
+                            <div class="col-md-3 mb-2">
+                                <strong><i class="fas fa-dollar-sign me-1 text-success"></i>Salario:</strong>
+                                <span class="salario ms-1">$<span th:text="${#numbers.formatDecimal(vacante.salario, 1, 2, 'COMMA')}">0</span></span>
+                            </div>
+                            <div class="col-md-3 mb-2">
+                                <strong><i class="fas fa-briefcase me-1 text-primary"></i>Tipo:</strong>
+                                <span class="ms-1" th:text="${vacante.tipoTrabajo}">Tipo</span>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <strong><i class="fas fa-clock me-1 text-warning"></i>Publicada:</strong>
+                                <span class="ms-1" th:if="${vacante.fechaPublicacion}"
+                                      th:text="${#temporals.format(vacante.fechaPublicacion, 'dd/MM/yyyy')}">Fecha</span>
+                                <span class="ms-1" th:if="${vacante.fechaPublicacion == null}">Reciente</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <small class="text-muted">
+                                <i class="fas fa-info-circle me-1"></i>
+                                <span th:if="${vacante.vencida}">Esta vacante ha expirado</span>
+                                <span th:if="${!vacante.vencida}">Haz clic en "Aplicar" para postularte a esta vacante</span>
+                            </small>
+                        </div>
+                        <button type="button" class="btn btn-apply text-white" data-bs-toggle="modal"
+                                th:attr="data-bs-target='#modalAplicar' + ${vacante.id}"
+                                th:disabled="${vacante.vencida}">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            <span th:if="${vacante.vencida}">Vacante Vencida</span>
+                            <span th:if="${!vacante.vencida}">Aplicar a esta Vacante</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Aplicar -->
+<div th:each="vacante : ${vacantes}">
+    <div class="modal fade" th:id="'modalAplicar' + ${vacante.id}" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">
+                        <i class="fas fa-paper-plane me-2 text-primary"></i>
+                        Aplicar a: <span th:text="${vacante.titulo}"></span>
+                    </h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <form th:action="@{'/aspirante/aplicar/' + ${vacante.id}}" method="post" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        <div class="mb-4">
+                            <label class="form-label fw-semibold mb-3">Subir tu CV (PDF)</label>
+                            <div class="file-upload-container">
+                                <div class="file-upload" th:id="'uploadArea' + ${vacante.id}">
+                                    <div class="file-upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <h6 class="fw-semibold mb-2">Haz clic o arrastra tu archivo aquí</h6>
+                                    <p class="text-muted mb-2">Formatos aceptados: PDF</p>
+                                    <small class="text-muted">Tamaño máximo: 5MB</small>
+                                </div>
+                                <input type="file"
+                                       class="file-input"
+                                       th:id="'cv' + ${vacante.id}"
+                                       th:name="cv"
+                                       accept=".pdf"
+                                       required
+                                       th:onchange="'updateFileName(' + ${vacante.id} + ')'">
+                            </div>
+                            <div th:id="'fileName' + ${vacante.id}" class="file-name" style="display: none;">
+                                <i class="fas fa-file-pdf me-2 text-danger"></i>
+                                <span th:id="'fileNameText' + ${vacante.id}"></span>
+                                <button type="button" class="btn btn-sm btn-outline-danger ms-2"
+                                        th:onclick="'clearFile(' + ${vacante.id} + ')'">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="alert alert-info">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-info-circle me-2"></i>
+                                <div>
+                                    <small class="mb-0">
+                                        <strong>Importante:</strong> Asegúrate de que tu CV esté actualizado
+                                        y refleje tu experiencia y habilidades relevantes para esta posición.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </button>
+                        <button type="submit" class="btn btn-primary" th:id="'submitBtn' + ${vacante.id}" disabled>
+                            <i class="fas fa-paper-plane me-2"></i>Enviar Solicitud
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Función para actualizar el nombre del archivo
+    function updateFileName(vacanteId) {
+        const fileInput = document.getElementById('cv' + vacanteId);
+        const fileNameDiv = document.getElementById('fileName' + vacanteId);
+        const fileNameText = document.getElementById('fileNameText' + vacanteId);
+        const submitBtn = document.getElementById('submitBtn' + vacanteId);
+
+        if (fileInput.files.length > 0) {
+            const file = fileInput.files[0];
+
+            // Validar tipo de archivo
+            if (file.type !== 'application/pdf') {
+                alert('Por favor, selecciona un archivo PDF.');
+                fileInput.value = '';
+                return;
+            }
+
+            // Validar tamaño (5MB)
+            if (file.size > 5 * 1024 * 1024) {
+                alert('El archivo es demasiado grande. El tamaño máximo permitido es 5MB.');
+                fileInput.value = '';
+                return;
+            }
+
+            fileNameText.textContent = file.name;
+            fileNameDiv.style.display = 'block';
+            submitBtn.disabled = false;
+        }
+    }
+
+    // Función para limpiar el archivo seleccionado
+    function clearFile(vacanteId) {
+        const fileInput = document.getElementById('cv' + vacanteId);
+        const fileNameDiv = document.getElementById('fileName' + vacanteId);
+        const submitBtn = document.getElementById('submitBtn' + vacanteId);
+
+        fileInput.value = '';
+        fileNameDiv.style.display = 'none';
+        submitBtn.disabled = true;
+    }
+
+    // Configurar drag and drop para todos los modales
+    document.addEventListener('DOMContentLoaded', function() {
+        // Agregar event listeners para drag and drop
+        document.querySelectorAll('.file-upload').forEach(uploadArea => {
+            uploadArea.addEventListener('dragover', function(e) {
+                e.preventDefault();
+                this.classList.add('dragover');
+            });
+
+            uploadArea.addEventListener('dragleave', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+            });
+
+            uploadArea.addEventListener('drop', function(e) {
+                e.preventDefault();
+                this.classList.remove('dragover');
+
+                const files = e.dataTransfer.files;
+                if (files.length > 0) {
+                    const fileInput = this.nextElementSibling;
+                    fileInput.files = files;
+
+                    // Obtener el ID de la vacante del ID del área de upload
+                    const vacanteId = this.id.replace('uploadArea', '');
+                    updateFileName(vacanteId);
+                }
+            });
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title th:text="${vacante.id != null} ? 'Editar Vacante' : 'Nueva Vacante'"></title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --secondary-color: #3a0ca3;
+            --success-color: #2ec4b6;
+            --warning-color: #ff9e00;
+            --info-color: #4cc9f0;
+            --dark-color: #2d3748;
+            --light-color: #f8f9fa;
+        }
+
+        body {
+            background-color: #f5f7fb;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .navbar {
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)) !important;
+        }
+
+        .sidebar {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .sidebar .list-group-item {
+            border: none;
+            border-left: 4px solid transparent;
+            padding: 1rem 1.25rem;
+            transition: all 0.3s;
+        }
+
+        .sidebar .list-group-item:hover {
+            background-color: rgba(67, 97, 238, 0.05);
+            border-left-color: var(--primary-color);
+        }
+
+        .sidebar .list-group-item.active {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border-left-color: var(--primary-color);
+            border: none;
+        }
+
+        .form-container {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            padding: 2rem;
+        }
+
+        .page-header {
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .page-title {
+            color: var(--dark-color);
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .page-subtitle {
+            color: #6c757d;
+            font-size: 1rem;
+        }
+
+        .form-label {
+            font-weight: 600;
+            color: var(--dark-color);
+            margin-bottom: 0.5rem;
+        }
+
+        .required-field::after {
+            content: " *";
+            color: #e53e3e;
+        }
+
+        .form-control {
+            border: 2px solid #e1e5ee;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            transition: all 0.3s;
+        }
+
+        .form-control:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(67, 97, 238, 0.15);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-primary-custom {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            border: none;
+            border-radius: 8px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-secondary-custom {
+            background: white;
+            border: 2px solid #6c757d;
+            color: #6c757d;
+            border-radius: 8px;
+            padding: 0.75rem 2rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-secondary-custom:hover {
+            background: #6c757d;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .form-section {
+            margin-bottom: 2rem;
+        }
+
+        .form-section-title {
+            color: var(--primary-color);
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .input-group-icon {
+            background-color: #f8f9fa;
+            border: 2px solid #e1e5ee;
+            border-right: none;
+            border-radius: 8px 0 0 8px;
+        }
+
+        .input-group .form-control {
+            border-left: none;
+            border-radius: 0 8px 8px 0;
+        }
+
+        .badge-notification {
+            font-size: 0.7rem;
+            padding: 0.25rem 0.5rem;
+        }
+
+        .character-count {
+            font-size: 0.8rem;
+            color: #6c757d;
+            text-align: right;
+            margin-top: 0.25rem;
+        }
+    </style>
+</head>
+<body>
+<nav class="navbar navbar-expand-lg navbar-dark">
+    <div class="container">
+        <a class="navbar-brand fw-bold" href="#">
+            <i class="fas fa-briefcase me-2"></i>Gestión de Vacantes
+        </a>
+        <div class="navbar-nav ms-auto">
+            <a class="btn btn-outline-light btn-sm" th:href="@{/auth/logout}">
+                <i class="fas fa-sign-out-alt me-1"></i>Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</nav>
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Sidebar -->
+        <div class="col-md-3">
+            <div class="sidebar sticky-top">
+                <div class="list-group">
+                    <a th:href="@{/empleador/dashboard}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-tachometer-alt me-2"></i>Dashboard
+                    </a>
+                    <a th:href="@{/empleador/vacantes}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-list me-2"></i>Mis Vacantes
+                    </a>
+                    <a th:href="@{/empleador/vacantes/nueva}" class="list-group-item list-group-item-action active">
+                        <i class="fas fa-plus-circle me-2"></i>Nueva Vacante
+                    </a>
+                    <a th:href="@{/empleador/solicitudes}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-file-alt me-2"></i>Solicitudes Recibidas
+                        <span th:if="${totalSolicitudes != null and totalSolicitudes > 0}"
+                              class="badge bg-primary badge-notification rounded-pill ms-2"
+                              th:text="${totalSolicitudes}"></span>
+                    </a>
+                    <a th:href="@{/perfil/editar}" class="list-group-item list-group-item-action">
+                        <i class="fas fa-user-edit me-2"></i>Editar Perfil
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="col-md-9">
+            <div class="form-container">
+                <!-- Page Header -->
+                <div class="page-header">
+                    <h1 class="page-title" th:text="${vacante.id != null} ? 'Editar Vacante' : 'Crear Nueva Vacante'"></h1>
+                    <p class="page-subtitle" th:text="${vacante.id != null} ?
+                        'Actualiza la información de tu vacante' :
+                        'Completa la información para publicar una nueva oportunidad laboral'"></p>
+                </div>
+
+                <form th:action="@{/empleador/vacantes}" method="post" th:object="${vacante}">
+                    <!-- Información Básica -->
+                    <div class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-info-circle me-2"></i>Información Básica
+                        </h4>
+
+                        <div class="mb-4">
+                            <label for="titulo" class="form-label required-field">Título del Puesto</label>
+                            <div class="input-group">
+                                <span class="input-group-text input-group-icon">
+                                    <i class="fas fa-heading text-muted"></i>
+                                </span>
+                                <input type="text" class="form-control" id="titulo" th:field="*{titulo}"
+                                       placeholder="Ej: Desarrollador Full Stack Senior" required>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="descripcion" class="form-label required-field">Descripción del Puesto</label>
+                            <textarea class="form-control" id="descripcion" th:field="*{descripcion}"
+                                      rows="5" placeholder="Describe las responsabilidades y objetivos del puesto..."
+                                      required></textarea>
+                            <div class="character-count" id="descripcion-count">0 caracteres</div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="requisitos" class="form-label required-field">Requisitos</label>
+                            <textarea class="form-control" id="requisitos" th:field="*{requisitos}"
+                                      rows="4" placeholder="Lista los requisitos educativos, experiencia y habilidades necesarias..."
+                                      required></textarea>
+                            <div class="character-count" id="requisitos-count">0 caracteres</div>
+                        </div>
+                    </div>
+
+                    <!-- Detalles del Puesto -->
+                    <div class="form-section">
+                        <h4 class="form-section-title">
+                            <i class="fas fa-clipboard-list me-2"></i>Detalles del Puesto
+                        </h4>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="ubicacion" class="form-label required-field">Ubicación</label>
+                                <div class="input-group">
+                                    <span class="input-group-text input-group-icon">
+                                        <i class="fas fa-map-marker-alt text-muted"></i>
+                                    </span>
+                                    <input type="text" class="form-control" id="ubicacion" th:field="*{ubicacion}"
+                                           placeholder="Ej: Ciudad, País o Remoto" required>
+                                </div>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label for="tipoTrabajo" class="form-label required-field">Tipo de Trabajo</label>
+                                <div class="input-group">
+                                    <span class="input-group-text input-group-icon">
+                                        <i class="fas fa-briefcase text-muted"></i>
+                                    </span>
+                                    <select class="form-control" id="tipoTrabajo" th:field="*{tipoTrabajo}" required>
+                                        <option value="">Selecciona un tipo</option>
+                                        <option th:each="tipo : ${tiposTrabajo}"
+                                                th:value="${tipo}"
+                                                th:text="${tipo}"></option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-4">
+                                <label for="salario" class="form-label required-field">Salario (USD)</label>
+                                <div class="input-group">
+            <span class="input-group-text input-group-icon">
+                <i class="fas fa-dollar-sign text-muted"></i>
+            </span>
+                                    <input type="number" class="form-control" id="salario" th:field="*{salario}"
+                                           step="0.01" min="0" placeholder="0.00" required>
+                                    <span class="input-group-text">USD</span>
+                                </div>
+                                <small class="text-muted mt-1">Ingresa el salario anual en dólares americanos</small>
+                            </div>
+
+                            <div class="col-md-6 mb-4">
+                                <label for="fechaVencimiento" class="form-label required-field">Fecha de Vencimiento</label>
+                                <div class="input-group">
+        <span class="input-group-text input-group-icon">
+            <i class="fas fa-calendar-alt text-muted"></i>
+        </span>
+                                    <input type="datetime-local" class="form-control" id="fechaVencimiento"
+                                           th:field="*{fechaVencimiento}" required>
+                                </div>
+                                <small class="text-muted mt-1">Fecha y hora límite para aplicar</small>
+                            </div>
+
+
+                    <!-- Actions -->
+                    <div class="d-flex gap-3 pt-3 border-top">
+                        <button type="submit" class="btn btn-primary-custom text-white">
+                            <i class="fas fa-paper-plane me-2"></i>
+                            <span th:text="${vacante.id != null} ? 'Actualizar Vacante' : 'Publicar Vacante'"></span>
+                        </button>
+                        <a th:href="@{/empleador/vacantes}" class="btn btn-secondary-custom">
+                            <i class="fas fa-times me-2"></i>Cancelar
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Contador de caracteres para textareas
+    document.addEventListener('DOMContentLoaded', function() {
+        const descripcion = document.getElementById('descripcion');
+        const requisitos = document.getElementById('requisitos');
+        const descripcionCount = document.getElementById('descripcion-count');
+        const requisitosCount = document.getElementById('requisitos-count');
+
+        function updateCharacterCount(textarea, countElement) {
+            countElement.textContent = textarea.value.length + ' caracteres';
+        }
+
+        if (descripcion && descripcionCount) {
+            descripcion.addEventListener('input', function() {
+                updateCharacterCount(descripcion, descripcionCount);
+            });
+            updateCharacterCount(descripcion, descripcionCount);
+        }
+
+        if (requisitos && requisitosCount) {
+            requisitos.addEventListener('input', function() {
+                updateCharacterCount(requisitos, requisitosCount);
+            });
+            updateCharacterCount(requisitos, requisitosCount);
+        }
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
